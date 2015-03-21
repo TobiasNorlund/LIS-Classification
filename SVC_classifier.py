@@ -2,18 +2,19 @@
 # Load classification problem
 import classification_base
 
-(X, Y, X_val, X_test) = classification_base.load(load_val=False, load_test=False)
+(X, Y, X_val, X_test) = classification_base.load(load_val=True, load_test=False)
 
 # ---------
 
 import sklearn.linear_model as sklin
+import sklearn.svm as sksvm
 from sklearn.multiclass import OneVsRestClassifier
 import sklearn.grid_search as skgs
 import numpy as np
 
 # Create linear classifier
-base_classifier1 = sklin.SGDClassifier('perceptron')
-base_classifier2 = sklin.SGDClassifier('perceptron')
+base_classifier1 = sksvm.SVC()
+base_classifier2 = sksvm.SVC()
 
 classifier1 = OneVsRestClassifier(base_classifier1)
 classifier2 = OneVsRestClassifier(base_classifier2)
@@ -34,9 +35,9 @@ print('best score =', -grid_search2.best_score_ + (-grid_search1.best_score_))
 
 
 # Predict validation set
-#Y_val1 = best1.predict(X_val)
-#Y_val2 = best2.predict(X_val)
-#np.savetxt('result_validation.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
+Y_val1 = best1.predict(X_val)
+Y_val2 = best2.predict(X_val)
+np.savetxt('result_validation.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
 
 # Predict test set
 #Y_test = best.predict(X_test)
