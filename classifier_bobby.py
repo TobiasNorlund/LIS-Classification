@@ -12,7 +12,7 @@ MAX_TRAIN_SAMPLES = 14514 #14514
 """ Read Data """
 X = np.genfromtxt('project_data/train.csv', delimiter=',',dtype=int)[0:MAX_TRAIN_SAMPLES]
 Y = np.genfromtxt('project_data/train_y.csv', delimiter=',')[0:MAX_TRAIN_SAMPLES]
-#data_X_val = np.genfromtxt('project_data/validate.csv', delimiter=',')
+X_val = np.genfromtxt('project_data/validate.csv', delimiter=',')
 #data_X_test = np.genfromtxt('project_data/test.csv', delimiter=',')
 
 print('Shape of X:', X.shape)
@@ -27,7 +27,7 @@ stds[len(full_num_features):] = 1
 stds[stds == 0] = 1
 
 X = (X-means)/stds
-#X_val = (X_val-means)/stds
+X_val = (X_val-means)/stds
 #X_test = (X_test - means)/stds
 
 """ Plotting """
@@ -84,7 +84,7 @@ from sklearn.tree import *
 
 clf = [
 #BaggingClassifier(),            #0.192
-#ExtraTreesClassifier(),         #0.195
+ExtraTreesClassifier(n_estimators=106),         #0.195
 #RandomForestClassifier(),       #0.196
 #KNeighborsClassifier(),         #0.241
 #SVC(kernel='rbf'),          #0.257
@@ -95,20 +95,21 @@ clf = [
 #OneVsRestClassifier(LogisticRegression()),  #0.260
 #OneVsRestClassifier(LogisticRegression()),  #0.260
 #OneVsRestClassifier(BaggingClassifier()),  #0.196
-BaggingClassifier(n_estimators=53)            #0.192
+BaggingClassifier(n_estimators=106)            #0.192
 ]
 
 
 """ Grid Search """
 import sklearn.grid_search as skgs
 
-for i in range(len(clf)):
+for i in range(len(clf)-1):
     param_grid = {}
-    grid_search = skgs.GridSearchCV(clf[i], param_grid,scoring=score, cv=4)
+    grid_search = skgs.GridSearchCV(clf[0], param_grid,scoring=score, cv=6)
     grid_search.fit(X[:,features_cat1], Y[:,0])
     best1_estm = grid_search.best_estimator_
     best1_score = grid_search.best_score_
     print 'cat_1 score =' , best1_score
+    grid_search = skgs.GridSearchCV(clf[1], param_grid,scoring=score, cv=6)
     grid_search.fit(X[:,features_cat2], Y[:,1])
     best2_estm = grid_search.best_estimator_
     best2_score = grid_search.best_score_
@@ -116,8 +117,8 @@ for i in range(len(clf)):
     print('best score =', (best1_score+best2_score)/2)
 
 """ Predict validation set """
-#Y_val1 = best1.predict(X_val)
-#Y_val2 = best2.predict(X_val)
-#np.savetxt('result_validation_1.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
-
+Y_val1 = best1_estm.predict(X_val)
+Y_val2 = best2_estm.predict(X_val)
+np.savetxt('result_validation_5.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
+print 'Saved Validation result!'
 
