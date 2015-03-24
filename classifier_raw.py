@@ -53,14 +53,11 @@ X_hist7 = X[np.where(Y[:,1]==7)]
 
 
 """ Score Function """
-import sklearn.metrics as skmet
-
 def score(estimator,x_test, y_pred):
     y_test = estimator.predict(x_test)
-    score = np.sum(y_test != y_pred)/float(y_test.shape[0])
+    score = np.sum(y_test == y_pred)/float(y_test.shape[0])
 #    print('score: ', score)
     return score
-scorefun = skmet.make_scorer(score, greater_is_better=False)
 
 """ Feature Extraction """
 num_features_cat1 = [0,1,2,3,4,5,6,7,8]
@@ -84,8 +81,8 @@ from sklearn.tree import *
 
 clf = [
 #BaggingClassifier(),            #0.192
-ExtraTreesClassifier(n_estimators=106),         #0.195
-#RandomForestClassifier(),       #0.196
+#RandomForestClassifier(n_estimators=106),       #0.196
+#GradientBoostingClassifier(n_estimators=106),
 #KNeighborsClassifier(),         #0.241
 #SVC(kernel='rbf'),          #0.257
 #RidgeClassifier(),              #0.281
@@ -95,14 +92,15 @@ ExtraTreesClassifier(n_estimators=106),         #0.195
 #OneVsRestClassifier(LogisticRegression()),  #0.260
 #OneVsRestClassifier(LogisticRegression()),  #0.260
 #OneVsRestClassifier(BaggingClassifier()),  #0.196
-BaggingClassifier(n_estimators=106)            #0.192
+ExtraTreesClassifier(n_estimators=200),         #0.195
+BaggingClassifier(n_estimators=200)            #0.192
 ]
 
 
 """ Grid Search """
 import sklearn.grid_search as skgs
 
-for i in range(len(clf)-1):
+for i in range(1):
     param_grid = {}
     grid_search = skgs.GridSearchCV(clf[0], param_grid,scoring=score, cv=6)
     grid_search.fit(X[:,features_cat1], Y[:,0])
@@ -114,11 +112,15 @@ for i in range(len(clf)-1):
     best2_estm = grid_search.best_estimator_
     best2_score = grid_search.best_score_
     print 'cat_2 score =' , best2_score
-    print('best score =', (best1_score+best2_score)/2)
+    print 'best score =', (best1_score+best2_score)/2
 
 """ Predict validation set """
 Y_val1 = best1_estm.predict(X_val)
 Y_val2 = best2_estm.predict(X_val)
-np.savetxt('result_validation_5.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
+np.savetxt('result_validation_7.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
 print 'Saved Validation result!'
 
+""" Predict test set """
+Y_test1 = best1_estm.predict(X_test)
+Y_test2 = best2_estm.predict(X_test)
+np.savetxt('result_test_7.txt', np.transpose(np.vstack((Y_val1, Y_val2))), fmt='%i', delimiter=',')
