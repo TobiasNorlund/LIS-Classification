@@ -3,6 +3,7 @@ import csv
 import sklearn.linear_model as sklin
 import sklearn.metrics as skmet
 import sklearn.cross_validation as skcv
+import sys
 
 import numpy as np
 
@@ -33,7 +34,7 @@ def read_data(inpath, get_features_fun):
             X[i,:] = features
 
             if i % 100 == 0:
-                print("Progress {:2.1%}".format(i/num_lines), end="\r")
+                print("\rProgress {:2.1%}".format(float(i)/float(num_lines))),
 
             i = i+1
     return np.atleast_2d(X)
